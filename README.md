@@ -1,101 +1,160 @@
-# Fanout Smart Contracts (`fanout-contracts`)
+# Fanout Smart Contracts
 
 ![Stellar](https://img.shields.io/badge/Blockchain-Stellar-blue)
 ![Soroban](https://img.shields.io/badge/Smart%20Contracts-Soroban%20v22-purple)
+![CI](https://github.com/Michealshodipo56/fanout-contracts/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Build Status](https://img.shields.io/badge/Tests-Passing-brightgreen)
 
-> **One payment. Everyone gets their share.**
+> One payment. Everyone gets their share.
 
-`fanout-contracts` houses the official Soroban smart contract suite powering the **Fanout** platform on Stellar. It enables programmable, deterministic revenue sharing and automatic distribution of incoming payments across multiple beneficiary wallets.
+Fanout is a Soroban protocol for deterministic, atomic revenue sharing on Stellar. Each deployed agreement defines one accepted token, beneficiary addresses, exact basis-point allocations, and a participant-governed update threshold.
 
-> **Release status:** `v0.1.0` is a Stellar Testnet submission release. Mainnet use requires an independent security review and a verified deployment manifest.
+This repository is the on-chain source of truth. The web dashboard, REST API, TypeScript SDK, and indexer live in [`fanout-app`](https://github.com/Michealshodipo56/fanout-app).
 
----
+> **Release status:** `v0.1.0` is a Stellar Testnet submission release. Mainnet use requires an independent security review, verified artifact, and published deployment manifest.
 
-## 🌟 Architecture & Features
+## Core Guarantees
 
-- **Deterministic Revenue Sharing**: Allocations are computed using integer-based basis points ($10,000\text{ BPS} = 100.00\%$) and a **Largest Remainder Algorithm** ensuring zero token truncation or loss.
-- **Atomic Multi-Transfer**: Transfers funds directly to all recipient Stellar wallets in a single transaction via SEP-41 token interfaces.
-- **Replay Protection**: Guarantees payment reference uniqueness per agreement to prevent duplicate or accidental distributions.
-- **Proposal-Based Governance**: Protective unanimous or quorum-based agreement updates. Creators cannot unilaterally redirect funds without beneficiary consent.
-- **Storage Management**: Leverages Soroban Instance Storage with automatic TTL extensions.
-- **Structured Soroban Events**: Publishes detailed on-chain events for indexer tracking.
+- **Deterministic allocation:** shares total exactly 10,000 basis points.
+- **No lost base units:** largest-remainder allocation conserves the payment amount.
+- **Atomic settlement:** all beneficiary transfers succeed or the invocation fails.
+- **Payer authorization:** only the supplying account authorizes token spending.
+- **Replay protection:** a payment reference executes once per agreement.
+- **Governed changes:** authorized participants approve beneficiary updates.
+- **Version safety:** obsolete proposals cannot overwrite current configuration.
+- **Terminal closure:** a closed agreement cannot reopen.
+- **Storage durability:** contract access extends instance TTL.
+- **Indexable activity:** structured events cover payments and governance.
 
----
+## Contract Lifecycle
 
-## 📂 Repository Structure
+1. Deploy a new agreement instance.
+2. Initialize it once with creator, name, token, beneficiaries, allocations, and approval threshold.
+3. Accept payments through `distribute` while active.
+4. Propose, approve, and execute beneficiary updates.
+5. Suspend temporarily or close permanently.
 
+Each instance represents one agreement, isolating replay keys, governance, lifecycle, and accounting between teams.
+
+## Public Interface
+
+### `initialize`
+
+Creates the agreement once and requires creator authorization. Beneficiaries must be unique and within the limit, allocations must total 10,000, and quorum cannot exceed the beneficiary count.
+
+### `distribute`
+
+Accepts payer, positive token amount in base units, and unique symbol reference. It calculates exact allocations, performs all token transfers, records the reference, updates totals, and emits a payment event.
+
+### Governance
+
+`propose_update` creates a complete replacement allocation and automatically records the proposer approval. `approve_proposal` records one approval per authorized participant. `execute_proposal` applies a quorum-approved, current-version proposal and increments the configuration version.
+
+### Lifecycle and reads
+
+`set_status` lets the creator suspend, reactivate, or permanently close the agreement. `get_config` returns current configuration and `get_proposal` returns a proposal by ID.
+
+## Allocation Algorithm
+
+```text
+base payout = payment amount × allocation basis points ÷ 10,000
+remainder   = payment amount × allocation basis points mod 10,000
 ```
+
+Unallocated base units are assigned in descending remainder order. Beneficiary order makes ties deterministic. A final conservation check rejects the transaction unless payouts sum exactly to the payment amount.
+
+## Repository Structure
+
+```text
 fanout-contracts/
-├── contracts/
-│   └── agreement/
-│       ├── src/
-│       │   ├── lib.rs          # Contract entry points & initialization
-│       │   ├── payment.rs      # Basis-points math & SEP-41 transfers
-│       │   ├── governance.rs   # Proposal creation & approval logic
-│       │   ├── storage.rs      # Storage keys & TTL management
-│       │   ├── types.rs        # Data structures (Config, Proposal, Beneficiary)
-│       │   ├── errors.rs       # ContractError enum definitions
-│       │   ├── events.rs       # Soroban event publishers
-│       │   └── test.rs         # Unit & financial invariant tests
-│       └── Cargo.toml
-├── scripts/
-│   ├── build.sh                # Wasm release builder
-│   ├── test.sh                 # Unit test execution script
-│   └── deploy-testnet.sh       # Testnet deployment helper
+├── contracts/agreement/
+│   ├── src/
+│   │   ├── lib.rs          # Public interface
+│   │   ├── payment.rs      # Allocation math and transfers
+│   │   ├── governance.rs   # Validation and authorization
+│   │   ├── storage.rs      # State and TTL extension
+│   │   ├── types.rs        # Data types and limits
+│   │   ├── errors.rs       # Stable error codes
+│   │   ├── events.rs       # Soroban events
+│   │   └── test.rs         # Contract and invariant tests
+│   └── Cargo.toml
+├── scripts/                # Build, test, and Testnet deployment
+├── .github/workflows/      # Required CI
 ├── Cargo.toml
-├── CONTRIBUTING.md
-├── SECURITY.md
-└── LICENSE
+├── Cargo.lock
+└── SECURITY.md
 ```
 
----
-
-## 🚀 Quick Start & Testing
+## Getting Started
 
 ### Prerequisites
 
-- [Rust & Cargo](https://rustup.rs/) `v1.97+`
-- [Stellar CLI](https://developers.stellar.org/docs/tools/cli) `v28.0+`
-- Target `wasm32-unknown-unknown` (`rustup target add wasm32-unknown-unknown`)
-
-### Building Contracts
-
-```bash
-cargo build --target wasm32-unknown-unknown --release
-# Or run script:
-./scripts/build.sh
-```
-
-### Running Tests
+- Rust stable
+- Stellar CLI
+- `wasm32v1-none` Rust target
+- A funded Stellar Testnet identity for deployment
 
 ```bash
-cargo test -- --nocapture
-# Or run script:
-./scripts/test.sh
+rustup target add wasm32v1-none
+git clone https://github.com/Michealshodipo56/fanout-contracts.git
+cd fanout-contracts
 ```
 
-### Full verification
+### Test and lint
 
 ```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace --all-targets
+```
+
+Tests cover initialization, allocation validation, exact rounding, token movement, replay protection, governance, suspension, closure, and terminal lifecycle behavior.
+
+### Build optimized WASM
+
+```bash
 cargo build --target wasm32v1-none --release
 ```
 
----
+Record the release artifact's SHA-256 checksum before deployment.
 
-## 🔐 Security Invariants
+## Deployment Outline
 
-1. **Allocations Invariant**: $\sum \text{beneficiary\_bps} == 10,000$.
-2. **Payout Invariant**: $\sum \text{payouts} == \text{payment\_amount}$.
-3. **Replay Protection**: Duplicate `payment_ref` symbols are rejected.
-4. **Auth Invariant**: `payer.require_auth()` is enforced on every distribution; proposals require beneficiary authorization.
+1. Build and checksum WASM from a source tag.
+2. Install it on the intended Stellar network.
+3. Deploy a contract instance from the installed hash.
+4. Review every address and allocation before initialization.
+5. Publish network, source tag, commit, checksum, WASM ID, contract ID, and transaction hashes.
+6. Add the contract ID to the indexer allowlist.
 
----
+Never mix Testnet and mainnet identifiers, endpoints, or passphrases.
 
-## 📜 License
+## Events
 
-This project is licensed under the [MIT License](LICENSE).
+Events cover agreement creation, payment distribution, proposal creation, approval and execution, and status changes. Indexers should query allowlisted contract IDs, persist a ledger cursor, and deduplicate by transaction hash plus event position.
+
+## Security Invariants
+
+1. Allocations sum to exactly 10,000 basis points.
+2. Payouts sum exactly to the payment amount.
+3. The payer authorizes spending.
+4. A payment reference cannot execute twice.
+5. Only authorized participants influence governance.
+6. Old-version proposals cannot modify current state.
+7. Only the creator changes lifecycle status.
+8. Closure is permanent.
+9. Accounting and counters fail safely on overflow.
+
+Automated tests are not an independent audit. Report vulnerabilities privately according to [SECURITY.md](SECURITY.md).
+
+## Compatibility and Releases
+
+Releases use semantic version tags. Storage, event, authorization, or interface changes must document compatibility and migration impact. See the [latest release](https://github.com/Michealshodipo56/fanout-contracts/releases/latest).
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md), start from an open issue, and add regression tests. Pull requests must explain authorization, storage, event, and compatibility impact.
+
+## License
+
+Fanout is available under the [MIT License](LICENSE).
