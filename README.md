@@ -2,14 +2,14 @@
 
 ![Stellar](https://img.shields.io/badge/Blockchain-Stellar-blue)
 ![Soroban](https://img.shields.io/badge/Smart%20Contracts-Soroban%20v22-purple)
-![CI](https://github.com/Michealshodipo56/fanout-contracts/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/fanout-web/fanout-contracts/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 > One payment. Everyone gets their share.
 
 Fanout is a Soroban protocol for deterministic, atomic revenue sharing on Stellar. Each deployed agreement defines one accepted token, beneficiary addresses, exact basis-point allocations, and a participant-governed update threshold.
 
-This repository is the on-chain source of truth. The web dashboard, REST API, TypeScript SDK, and indexer live in [`fanout-app`](https://github.com/Michealshodipo56/fanout-app).
+This repository is the on-chain source of truth. The web dashboard, REST API, TypeScript SDK, and indexer live in [`fanout-app`](https://github.com/fanout-web/fanout-app).
 
 > **Release status:** `v0.1.0` is a Stellar Testnet submission release. Mainnet use requires an independent security review, verified artifact, and published deployment manifest.
 
@@ -96,7 +96,7 @@ fanout-contracts/
 
 ```bash
 rustup target add wasm32v1-none
-git clone https://github.com/Michealshodipo56/fanout-contracts.git
+git clone https://github.com/fanout-web/fanout-contracts.git
 cd fanout-contracts
 ```
 
@@ -149,7 +149,7 @@ Automated tests are not an independent audit. Report vulnerabilities privately a
 
 ## Compatibility and Releases
 
-Releases use semantic version tags. Storage, event, authorization, or interface changes must document compatibility and migration impact. See the [latest release](https://github.com/Michealshodipo56/fanout-contracts/releases/latest).
+Releases use semantic version tags. Storage, event, authorization, or interface changes must document compatibility and migration impact. See the [latest release](https://github.com/fanout-web/fanout-contracts/releases/latest).
 
 ## Contributing
 
