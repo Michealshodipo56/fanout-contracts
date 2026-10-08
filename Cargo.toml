@@ -1,0 +1,23 @@
+[workspace]
+resolver = "2"
+members = [
+    "contracts/agreement",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Fanout Core Team"]
+license = "MIT"
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = false
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
