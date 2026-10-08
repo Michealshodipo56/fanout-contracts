@@ -51,12 +51,10 @@ pub fn calculate_allocations(
 
             for j in 0..n {
                 let (idx, rem) = remainders.get(j).unwrap();
-                if !allocated_rem.get(idx).unwrap() {
-                    if !found || rem > max_rem {
-                        max_rem = rem;
-                        best_idx = idx;
-                        found = true;
-                    }
+                if !allocated_rem.get(idx).unwrap() && (!found || rem > max_rem) {
+                    max_rem = rem;
+                    best_idx = idx;
+                    found = true;
                 }
             }
 

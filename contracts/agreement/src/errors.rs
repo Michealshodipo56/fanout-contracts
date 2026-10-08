@@ -23,4 +23,5 @@ pub enum ContractError {
     ArithmeticOverflow = 17,
     MismatchLength = 18,
     InvalidQuorum = 19,
+    InvalidStatusTransition = 20,
 }

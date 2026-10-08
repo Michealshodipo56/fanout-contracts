@@ -22,8 +22,8 @@ use events::{
 use governance::{is_authorized_participant, validate_beneficiaries};
 use payment::{calculate_allocations, execute_token_transfers};
 use storage::{
-    get_config, get_proposal, has_config, has_payment_ref,
-    increment_proposal_count, set_config, set_payment_ref, set_proposal,
+    get_config, get_proposal, has_config, has_payment_ref, increment_proposal_count, set_config,
+    set_payment_ref, set_proposal,
 };
 
 use soroban_sdk::{contract, contractimpl, Address, Env, String, Symbol, Vec};
@@ -96,7 +96,13 @@ impl FanoutAgreementContract {
 
         let amounts = calculate_allocations(&e, amount, &config.beneficiaries)?;
 
-        execute_token_transfers(&e, &config.accepted_asset, &payer, &config.beneficiaries, &amounts);
+        execute_token_transfers(
+            &e,
+            &config.accepted_asset,
+            &payer,
+            &config.beneficiaries,
+            &amounts,
+        );
 
         set_payment_ref(&e, &payment_ref);
 
@@ -104,17 +110,14 @@ impl FanoutAgreementContract {
             .total_distributed
             .checked_add(amount)
             .ok_or(ContractError::ArithmeticOverflow)?;
-        config.transaction_count += 1;
+        config.transaction_count = config
+            .transaction_count
+            .checked_add(1)
+            .ok_or(ContractError::ArithmeticOverflow)?;
 
         set_config(&e, &config);
 
-        emit_payment_distributed(
-            &e,
-            &payer,
-            amount,
-            &payment_ref,
-            config.beneficiaries.len(),
-        );
+        emit_payment_distributed(&e, &payer, amount, &payment_ref, config.beneficiaries.len());
 
         Ok(amounts)
     }
@@ -137,7 +140,7 @@ impl FanoutAgreementContract {
 
         validate_beneficiaries(&new_beneficiaries)?;
 
-        let proposal_id = increment_proposal_count(&e);
+        let proposal_id = increment_proposal_count(&e)?;
 
         let mut approvals = Vec::new(&e);
         approvals.push_back(proposer.clone());
@@ -217,7 +220,10 @@ impl FanoutAgreementContract {
         }
 
         config.beneficiaries = proposal.new_beneficiaries.clone();
-        config.version += 1;
+        config.version = config
+            .version
+            .checked_add(1)
+            .ok_or(ContractError::ArithmeticOverflow)?;
         proposal.status = ProposalStatus::Executed;
 
         set_config(&e, &config);
@@ -238,6 +244,10 @@ impl FanoutAgreementContract {
 
         if caller != config.creator {
             return Err(ContractError::Unauthorized);
+        }
+
+        if config.status == AgreementStatus::Closed && new_status != AgreementStatus::Closed {
+            return Err(ContractError::InvalidStatusTransition);
         }
 
         let old_status = config.status.clone();

@@ -1,12 +1,8 @@
 use crate::errors::ContractError;
-use crate::types::{
-    AgreementConfig, Beneficiary, BPS_TOTAL, MAX_BENEFICIARIES,
-};
+use crate::types::{AgreementConfig, Beneficiary, BPS_TOTAL, MAX_BENEFICIARIES};
 use soroban_sdk::{Address, Vec};
 
-pub fn validate_beneficiaries(
-    beneficiaries: &Vec<Beneficiary>,
-) -> Result<(), ContractError> {
+pub fn validate_beneficiaries(beneficiaries: &Vec<Beneficiary>) -> Result<(), ContractError> {
     let len = beneficiaries.len();
     if len == 0 {
         return Err(ContractError::EmptyBeneficiaries);
@@ -40,10 +36,7 @@ pub fn validate_beneficiaries(
     Ok(())
 }
 
-pub fn is_authorized_participant(
-    config: &AgreementConfig,
-    address: &Address,
-) -> bool {
+pub fn is_authorized_participant(config: &AgreementConfig, address: &Address) -> bool {
     if config.creator == *address {
         return true;
     }

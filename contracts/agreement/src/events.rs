@@ -42,15 +42,11 @@ pub fn emit_proposal_approved(e: &Env, approver: &Address, proposal_id: u64, tot
 }
 
 pub fn emit_proposal_executed(e: &Env, proposal_id: u64, new_version: u32) {
-    e.events().publish(
-        (symbol_short!("prop_exec"), proposal_id),
-        new_version,
-    );
+    e.events()
+        .publish((symbol_short!("prop_exec"), proposal_id), new_version);
 }
 
 pub fn emit_status_changed(e: &Env, old_status: AgreementStatus, new_status: AgreementStatus) {
-    e.events().publish(
-        (symbol_short!("status_ch"), old_status),
-        new_status,
-    );
+    e.events()
+        .publish((symbol_short!("status_ch"), old_status), new_status);
 }

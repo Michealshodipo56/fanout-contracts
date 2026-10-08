@@ -14,7 +14,9 @@ fn create_token_contract<'a>(
     e: &Env,
     admin: &Address,
 ) -> (token::Client<'a>, token::StellarAssetClient<'a>) {
-    let contract_id = e.register_stellar_asset_contract_v2(admin.clone()).address();
+    let contract_id = e
+        .register_stellar_asset_contract_v2(admin.clone())
+        .address();
     (
         token::Client::new(e, &contract_id),
         token::StellarAssetClient::new(e, &contract_id),
@@ -113,13 +115,7 @@ fn test_invalid_allocation_total_rejection() {
     });
 
     let name = String::from_str(&e, "Invalid Share");
-    let res = client.try_initialize(
-        &creator,
-        &name,
-        &token_client.address,
-        &beneficiaries,
-        &1,
-    );
+    let res = client.try_initialize(&creator, &name, &token_client.address, &beneficiaries, &1);
 
     assert_eq!(res, Err(Ok(ContractError::InvalidAllocationTotal)));
 }
@@ -144,13 +140,7 @@ fn test_deterministic_payment_distribution_and_rounding() {
     });
 
     let name = String::from_str(&e, "App Rev Share");
-    client.initialize(
-        &creator,
-        &name,
-        &token_client.address,
-        &beneficiaries,
-        &2,
-    );
+    client.initialize(&creator, &name, &token_client.address, &beneficiaries, &2);
 
     let payer = Address::generate(&e);
     token_admin_client.mint(&payer, &100_000_000); // 100 tokens
@@ -182,7 +172,10 @@ fn test_deterministic_payment_distribution_and_rounding() {
     assert_eq!(amounts2.get(0).unwrap(), 51);
     assert_eq!(amounts2.get(1).unwrap(), 30);
     assert_eq!(amounts2.get(2).unwrap(), 20);
-    assert_eq!(amounts2.get(0).unwrap() + amounts2.get(1).unwrap() + amounts2.get(2).unwrap(), 101);
+    assert_eq!(
+        amounts2.get(0).unwrap() + amounts2.get(1).unwrap() + amounts2.get(2).unwrap(),
+        101
+    );
 }
 
 #[test]
@@ -310,4 +303,9 @@ fn test_status_suspension_and_closure() {
 
     let dist_res = client.try_distribute(&payer, &100, &pay_ref);
     assert_eq!(dist_res, Err(Ok(ContractError::AgreementNotActive)));
+
+    // Closure is terminal and cannot be silently reopened by the creator.
+    client.set_status(&creator, &AgreementStatus::Closed);
+    let reopen = client.try_set_status(&creator, &AgreementStatus::Active);
+    assert_eq!(reopen, Err(Ok(ContractError::InvalidStatusTransition)));
 }

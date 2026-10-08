@@ -35,13 +35,15 @@ pub fn get_proposal_count(e: &Env) -> u64 {
         .unwrap_or(0)
 }
 
-pub fn increment_proposal_count(e: &Env) -> u64 {
-    let next_id = get_proposal_count(e) + 1;
+pub fn increment_proposal_count(e: &Env) -> Result<u64, ContractError> {
+    let next_id = get_proposal_count(e)
+        .checked_add(1)
+        .ok_or(ContractError::ArithmeticOverflow)?;
     e.storage()
         .instance()
         .set(&DataKey::ProposalCount, &next_id);
     bump_instance(e);
-    next_id
+    Ok(next_id)
 }
 
 pub fn set_proposal(e: &Env, proposal: &GovernanceProposal) {
