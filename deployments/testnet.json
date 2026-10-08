@@ -1,0 +1,15 @@
+{
+  "network": "testnet",
+  "networkPassphrase": "Test SDF Network ; September 2015",
+  "sourceCommit": "8a2e4404f64de717f51febe95c9b5a5af5224034",
+  "deployedAt": "2026-10-08T15:55:00Z",
+  "deployer": "GAO5GK3F2XFVGUWKTFACJWRZVEGUWH47EJFLSAMLVRNP6CGV3YW2DDIK",
+  "wasmSha256": "d5776eb00bbb58733c35cfa9d6e90b27eab3e306d67ecefb6478fdf18438ab33",
+  "wasmUploadTransaction": "8a909f684a3e4691f6bff95fa932f0349782357c7b7b1a8ef83caa597a95b153",
+  "contractId": "CCAK6YBIECDQ2GFPMYLV3GWQPJN2DVGJGDHKY76ESZHI56DZMELSTPRV",
+  "deployTransaction": "f21c4a6b7ecb6f40580d056d9e6cd6fd75df6663296079aee7e27308f6f614a9",
+  "initializeTransaction": "50fdf4c45b8b2e8e3b3680263534bbb51b1e2a7109922e91d0f7608791aa36fa",
+  "acceptedAsset": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+  "verificationPaymentTransaction": "77e0a9b12362f48a2bdddaec9865aea82b36ab2116b777c892bf8beca3ada04c",
+  "verificationPaymentReference": "DEMO001"
+}

@@ -7,11 +7,27 @@
 
 > One payment. Everyone gets their share.
 
+## Maintainer and Community
+
+| Maintainer | Role | Contact |
+| --- | --- | --- |
+| [Micheal Shodipo](https://github.com/michealshodipo56) | Project maintainer | [GitHub](https://github.com/michealshodipo56) |
+
+Use [GitHub Discussions](https://github.com/fanout-web/fanout-contracts/discussions) for protocol questions. Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+
 Fanout is a Soroban protocol for deterministic, atomic revenue sharing on Stellar. Each deployed agreement defines one accepted token, beneficiary addresses, exact basis-point allocations, and a participant-governed update threshold.
 
 This repository is the on-chain source of truth. The web dashboard, REST API, TypeScript SDK, and indexer live in [`fanout-app`](https://github.com/fanout-web/fanout-app).
 
 > **Release status:** `v0.1.0` is a Stellar Testnet submission release. Mainnet use requires an independent security review, verified artifact, and published deployment manifest.
+
+## Verified Testnet Deployment
+
+- Contract: [`CCAK6Y...STPRV`](https://stellar.expert/explorer/testnet/contract/CCAK6YBIECDQ2GFPMYLV3GWQPJN2DVGJGDHKY76ESZHI56DZMELSTPRV)
+- Initialization: [`50fdf4...a36fa`](https://stellar.expert/explorer/testnet/tx/50fdf4c45b8b2e8e3b3680263534bbb51b1e2a7109922e91d0f7608791aa36fa)
+- Verified payment: [`77e0a9...ada04c`](https://stellar.expert/explorer/testnet/tx/77e0a9b12362f48a2bdddaec9865aea82b36ab2116b777c892bf8beca3ada04c)
+- WASM SHA-256: `d5776eb00bbb58733c35cfa9d6e90b27eab3e306d67ecefb6478fdf18438ab33`
+- Machine-readable evidence: [`deployments/testnet.json`](deployments/testnet.json)
 
 ## Core Guarantees
 
@@ -154,6 +170,10 @@ Releases use semantic version tags. Storage, event, authorization, or interface 
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md), start from an open issue, and add regression tests. Pull requests must explain authorization, storage, event, and compatibility impact.
+
+## Contributors
+
+<a href="https://github.com/fanout-web/fanout-contracts/graphs/contributors"><img src="https://contrib.rocks/image?repo=fanout-web/fanout-contracts" alt="Fanout contract contributors" /></a>
 
 ## License
 
