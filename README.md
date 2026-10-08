@@ -85,10 +85,6 @@ cargo test --workspace --all-targets
 cargo build --target wasm32v1-none --release
 ```
 
-## Documentation
-
-See [`docs/SUMMARY.md`](docs/SUMMARY.md) for the GitBook-style contract reference, security invariants, testing, deployment, and contribution guide.
-
 ---
 
 ## 🔐 Security Invariants
