@@ -9,6 +9,8 @@
 
 `fanout-contracts` houses the official Soroban smart contract suite powering the **Fanout** platform on Stellar. It enables programmable, deterministic revenue sharing and automatic distribution of incoming payments across multiple beneficiary wallets.
 
+> **Release status:** `v0.1.0` is a Stellar Testnet submission release. Mainnet use requires an independent security review and a verified deployment manifest.
+
 ---
 
 ## 🌟 Architecture & Features
@@ -73,6 +75,19 @@ cargo test -- --nocapture
 # Or run script:
 ./scripts/test.sh
 ```
+
+### Full verification
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace --all-targets
+cargo build --target wasm32v1-none --release
+```
+
+## Documentation
+
+See [`docs/SUMMARY.md`](docs/SUMMARY.md) for the GitBook-style contract reference, security invariants, testing, deployment, and contribution guide.
 
 ---
 
