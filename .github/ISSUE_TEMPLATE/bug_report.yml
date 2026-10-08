@@ -1,0 +1,24 @@
+name: Contract bug report
+description: Report reproducible incorrect smart-contract behavior.
+title: "bug: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose exploitable vulnerabilities here. Use a private GitHub security advisory.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Contract version or commit
